@@ -1,0 +1,11 @@
+snippet dtgb "DataTable Group by"
+${1:.}[, .(${2:select columns}), by=.(${3:group by})]
+endsnippet
+
+snippet dtgc "DataTable Group by"
+${1:.}[, .N, by=.(${3:group by})]
+endsnippet
+
+snippet dt "DataTable"
+${1:.}[, .(${2:select columns})]
+endsnippet
