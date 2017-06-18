@@ -17,7 +17,9 @@ if dein#load_state('~/.config/nvim/dein/')
   call dein#add('rhysd/nyaovim-tree-view')
   call dein#add('spolu/dwm.vim')
   call dein#add('easymotion/vim-easymotion')
-  call dein#add('jalvesaq/Nvim-R')
+  "call dein#add('jalvesaq/Nvim-R')
+  call dein#add('~/Core/code/R/ad-hoc/Nvim-R/')
+
   call dein#add('joshdick/onedark.vim')
   "call dein#add('itchyny/lightline.vim')
   call dein#add('vim-airline/vim-airline')
@@ -27,14 +29,18 @@ if dein#load_state('~/.config/nvim/dein/')
   call dein#add('chrisbra/csv.vim')
 
   " Python stuff
-  "call dein#add('tmhedberg/SimpylFold')
+  call dein#add('tmhedberg/SimpylFold')
   "call dein#add('vim-scripts/indentpython.vim')
   "call dein#add('vim-syntastic/syntastic')
-  "call dein#add('Konfekt/FastFold')
+  call dein#add('Konfekt/FastFold')
   "call dein#add('nvie/vim-flake8')
-  call dein#add('python-mode/python-mode')
-  call dein#add('ervandew/supertab')
+  call dein#add('thinca/vim-quickrun')
+  call dein#add('zchee/deoplete-jedi')
 
+  " My plugin stuff
+  call dein#add("~/Core/code/python/vim-plugins/1-magrittr-chain-run/")
+
+  "Previously used plugins
   "call dein#add('pangloss/vim-javascript')
   "call dein#add('Valloric/YouCompleteMe')
   "call dein#add('marijnh/tern_for_vim')
@@ -46,6 +52,7 @@ if dein#load_state('~/.config/nvim/dein/')
   "call dein#add('jelera/vim-javascript-syntax')
   "call dein#add('dhruvasagar/vim-table-mode')
 
+  call dein#remote_plugins()
   call dein#end()
   call dein#save_state()
 endif
@@ -55,14 +62,10 @@ endif
 filetype plugin indent on
 syntax enable
 inoremap <CapsLock> <Esc>
-au BufNewFile,BufRead * |
-  \ set shiftwidth=2 |
-  \ set softtabstop=2 |
-  \ set shiftwidth=2 |
-  \ set expandtab |
-  \ let mapleader="," |
-  \ let maplocalleader=" " |
-  \ set ignorecase
+au BufNew,BufNewFile,BufRead * set shiftwidth=2 softtabstop=2 shiftwidth=2 expandtab
+let mapleader=","
+let maplocalleader=" "
+set ignorecase
 
 " Syntax stuff
 let python_highlight_all=1
@@ -130,10 +133,15 @@ endif
 let g:auto_save=1
 
 " deoplete - intellisense completion stuff
-let g:deoplete#enable_at_startup=1
+let g:deoplete#enable_at_startup = 1
+
+" deoplete tab-complete
+inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+let g:deoplete#sources#jedi#python_path = "/usr/local/bin/python3"
 
 " NVIM R - assign shortcut
 let R_assign = 2
+let g:R_csv_app = "open-with-excel"
 
 " Set up syntastic config
 "set statusline+=%#warningmsg#
@@ -152,26 +160,15 @@ let R_assign = 2
 
 
 " Python config
-au BufNewFile,BufRead *.py |
-    \ set tabstop=4 |
-    \ set softtabstop=4 |
-    \ set shiftwidth=4 |
-    \ set textwidth=79 |
-    \ set expandtab |
-    \ set autoindent |
-    \ set fileformat=unix
-
-let g:pymode_python = 'python3'
-let g:pymode_run = 1
-let g:pymode_run_bind = '<leader>p'
-let g:pymode_lint_on_write = 0
-" DESC: Open temp buffer.
-fun! pymode#tempbuffer_open(name) "{{{
-  pclose
-  exe "vertical botright split " . a:name
-  setlocal buftype=nofile bufhidden=delete noswapfile nowrap previewwindow
-  redraw
-endfunction "}}}
+"au BufNewFile,BufRead *.py 
+au BufNewFile,BufRead,BufEnter *.py 
+      \ set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 expandtab autoindent fileformat=unix |
+      \ nnoremap <leader>y :0,$!yapf<cr>
+au CompleteDone * pclose " close preview window when completion finishes :'D
+let g:quickrun_config = {}
+let g:quickrun_config.python = {'command' : 'python3' }
+nmap <silent> <leader>x <Plug>(quickrun-op)
+set splitright
 
 " For neovim-fuzzy
 nnoremap <C-p> :FuzzyOpen<CR>
@@ -206,6 +203,8 @@ vnoremap <LocalLeader>y "*y
 vnoremap <LocalLeader>p "*p
 nnoremap <LocalLeader>hd :!(cd ~/IdeaProjects/jarvis-singleview-frontend; gulp deploy:hot)<CR>
 nnoremap <LocalLeader>f :FuzzyGrep<CR>
+nnoremap <LocalLeader>m :call RunMagrittrChain()<CR>
+nnoremap <LocalLeader>M :call RunFullMagrittrChain()<CR>
 "nnoremap <LocalLeader>nt :!npm test<CR>
 inoremap >> <Space>%>%<CR>
 nnoremap <CR> za
